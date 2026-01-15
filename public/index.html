@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Mood-Based Album Recommender</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Spotify Album Recommender</h1>
+        </header>
+        <main>
+            <section class="authentication">
+                <button id="spotifyAuthButton">Connect with Spotify</button>
+            </section>
+            <section class="status-message">
+                <p id="connection-status"></p>
+            </section>
+            <section class="mood-selection" style="display: none;">
+                <label for="mood">How are you feeling today?</label>
+                <select id="mood">
+                    <option value="happy">Happy</option>
+                    <option value="sad">Sad</option>
+                    <option value="energetic">Energetic</option>
+                    <option value="chill">Chill</option>
+                </select>
+                <button id="find-album">Find Album</button>
+            </section>
+            <section class="random-album" style="display: none;">
+                <p id="random-album-question">Do you want to play a random album from your library?</p>
+                <button id="play-random-album">Play Random Album</button>
+            </section>
+            <section class="album-display">
+                <ul id="album-list">
+                </ul>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

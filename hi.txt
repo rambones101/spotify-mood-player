@@ -1,0 +1,41 @@
+// Placeholder endpoint to get albums based on mood
+app.get('/get-albums', async (req, res) => {
+    if (!req.session.accessToken) {
+        return res.status(401).send('Not authenticated');
+    }
+
+    // Implement fetching albums from user's library based on mood using Spotify API
+    // Example:
+    // axios.get('https://api.spotify.com/v1/me/albums', {
+    //     headers: {
+    //         'Authorization': 'Bearer ' + req.session.accessToken,
+    //     },
+    // }).then(response => {
+    //     res.json({ albums: response.data.items });
+    // }).catch(error => {
+    //     console.error('Error fetching albums:', error);
+    //     res.status(500).send('Error fetching albums');
+    // });
+});
+
+// Placeholder endpoint to get a random album
+app.get('/get-random-album', async (req, res) => {
+    if (!req.session.accessToken) {
+        return res.status(401).send('Not authenticated');
+    }
+
+    // Implement fetching a random album from user's library using Spotify API
+    // Example:
+    // axios.get('https://api.spotify.com/v1/me/albums', {
+    //     headers: {
+    //         'Authorization': 'Bearer ' + req.session.accessToken,
+    //     },
+    // }).then(response => {
+    //     // Randomly select an album and send it as a response
+    //     const randomIndex = Math.floor(Math.random() * response.data.items.length);
+    //     res.json({ album: response.data.items[randomIndex] });
+    // }).catch(error => {
+    //     console.error('Error fetching albums:', error);
+    //     res.status(500).send('Error fetching albums');
+    // });
+});
