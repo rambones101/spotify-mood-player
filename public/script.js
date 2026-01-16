@@ -1,5 +1,6 @@
 let accessToken = null;
 let userAlbums = [];
+let selectedMood = null;
 
 // Mood mappings for audio features
 const moodCriteria = {
@@ -16,21 +17,45 @@ async function authenticateWithSpotify() {
         window.location.href = data.url;
     } catch (error) {
         console.error('Error authenticating:', error);
-        document.getElementById('connection-status').textContent = 'Authentication failed. Please try again.';
+        showError('Authentication failed. Please try again.');
     }
 }
 
 function handleAuthenticationSuccess(token) {
     accessToken = token;
-    document.getElementById('connection-status').textContent = 'Connected to Spotify!';
+    document.getElementById('connection-status').textContent = 'Connected to Spotify! ✨';
     document.getElementById('connection-status').style.color = '#1DB954';
     document.querySelector('.mood-selection').style.display = 'block';
     document.querySelector('.random-album').style.display = 'block';
-    document.querySelector('.playlist-creation').style.display = 'block'; // Show playlist creation
+    document.querySelector('.playlist-creation').style.display = 'block';
     document.querySelector('.authentication').style.display = 'none';
+    
+    // Initialize mood card listeners
+    initializeMoodCards();
     
     // Load user's albums
     loadUserAlbums();
+}
+
+// Initialize mood card click handlers
+function initializeMoodCards() {
+    const moodCards = document.querySelectorAll('.mood-card');
+    
+    moodCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove selected class from all cards
+            moodCards.forEach(c => c.classList.remove('selected'));
+            
+            // Add selected class to clicked card
+            this.classList.add('selected');
+            
+            // Get mood from data attribute
+            selectedMood = this.getAttribute('data-mood');
+            
+            // Automatically find albums for selected mood
+            findAlbumByMood(selectedMood);
+        });
+    });
 }
 
 async function loadUserAlbums() {
@@ -41,47 +66,77 @@ async function loadUserAlbums() {
         console.log(`Loaded ${userAlbums.length} albums`);
     } catch (error) {
         console.error('Error loading albums:', error);
-        document.getElementById('connection-status').textContent = 'Failed to load albums.';
+        showError('Failed to load albums. Please refresh the page.');
     }
 }
 
-async function findAlbumByMood() {
-    const mood = document.getElementById('mood').value;
+// Show error message
+function showError(message) {
+    const statusElement = document.getElementById('connection-status');
+    statusElement.textContent = message;
+    statusElement.style.color = '#ff6b6b';
+}
+
+// Show success message
+function showSuccess(message) {
+    const statusElement = document.getElementById('connection-status');
+    statusElement.textContent = message;
+    statusElement.style.color = '#1DB954';
+}
+
+async function findAlbumByMood(mood = selectedMood) {
+    if (!mood) {
+        showError('Please select a mood first!');
+        return;
+    }
+    
     const statusElement = document.getElementById('connection-status');
     const albumList = document.getElementById('album-list');
+    const loadingState = document.getElementById('loading-state');
     
     // Show loading state
-    statusElement.textContent = `Analyzing your albums for ${mood} mood... 🎵`;
-    statusElement.style.color = '#1DB954';
-    albumList.innerHTML = '<li style="text-align: center; color: #1DB954;">Loading recommendations...</li>';
+    loadingState.style.display = 'block';
+    statusElement.textContent = '';
+    albumList.innerHTML = '';
     
     try {
         const response = await fetch(`/api/recommend-albums?access_token=${accessToken}&mood=${mood}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         
+        // Hide loading state
+        loadingState.style.display = 'none';
+        
         if (data.error) {
-            statusElement.textContent = `Error: ${data.error}`;
-            statusElement.style.color = '#ff6b6b';
+            showError(`Error: ${data.error}`);
             albumList.innerHTML = '';
             return;
         }
 
         if (data.albums.length === 0) {
-            statusElement.textContent = `No albums found matching your ${mood} mood. Try a different mood!`;
-            statusElement.style.color = '#ffa500';
-            albumList.innerHTML = '<li style="text-align: center;">No matching albums found. Try another mood!</li>';
+            showError(`No albums found matching your ${mood} mood. Try a different mood!`);
+            albumList.innerHTML = '<li style="text-align: center; padding: 20px; color: #666;">No matching albums found. Try another mood!</li>';
             return;
         }
 
         // Display results
-        statusElement.textContent = `Found ${data.matchingAlbums} album(s) matching your ${mood} mood! 🎉`;
-        statusElement.style.color = '#1DB954';
+        const moodEmoji = {
+            happy: '😊',
+            sad: '😢',
+            energetic: '⚡',
+            chill: '😌'
+        };
+        showSuccess(`${moodEmoji[mood]} Found ${data.matchingAlbums} album(s) matching your ${mood} mood!`);
         displayMoodAlbums(data.albums);
         
     } catch (error) {
         console.error('Error finding albums by mood:', error);
-        statusElement.textContent = 'Failed to analyze albums. Please try again.';
-        statusElement.style.color = '#ff6b6b';
+        loadingState.style.display = 'none';
+        showError('Failed to analyze albums. Please try again or check your connection.');
         albumList.innerHTML = '';
     }
 }
@@ -91,7 +146,7 @@ function displayMoodAlbums(albums) {
     albumList.innerHTML = '';
 
     if (albums.length === 0) {
-        albumList.innerHTML = '<li style="text-align: center;">No albums found. Try a different mood!</li>';
+        albumList.innerHTML = '<li style="text-align: center; padding: 20px;">No albums found. Try a different mood!</li>';
         return;
     }
 
@@ -100,16 +155,23 @@ function displayMoodAlbums(albums) {
         const moodScore = (item.moodScore * 100).toFixed(0);
         
         const li = document.createElement('li');
+        li.className = 'album-card';
+        li.style.animationDelay = `${index * 0.1}s`;
+        
         li.innerHTML = `
             <div class="album-item">
-                ${album.images && album.images[0] ? `<img src="${album.images[0].url}" alt="${album.name}" class="album-cover">` : ''}
+                ${album.images && album.images[0] ? 
+                    `<img src="${album.images[0].url}" alt="${album.name}" class="album-cover">` : 
+                    '<div class="album-cover-placeholder">🎵</div>'}
                 <div class="album-info">
-                    <strong>${album.name}</strong>
-                    <span class="mood-score">Match: ${moodScore}%</span><br>
-                    <span class="artist-name">${album.artists.join(', ')}</span><br>
-                    <span class="album-details">${album.total_tracks} tracks • ${album.release_date.substring(0, 4)}</span><br>
+                    <strong class="album-name">${album.name}</strong>
+                    <span class="mood-score">Match: ${moodScore}%</span>
+                    <span class="artist-name">${album.artists.join(', ')}</span>
+                    <span class="album-details">${album.total_tracks} tracks • ${album.release_date.substring(0, 4)}</span>
                     <div class="album-actions">
-                        <a href="${album.external_urls.spotify}" target="_blank" class="play-button">Open in Spotify</a>
+                        <a href="${album.external_urls.spotify}" target="_blank" class="play-button">
+                            ▶ Play in Spotify
+                        </a>
                     </div>
                 </div>
             </div>
@@ -195,7 +257,6 @@ async function createPlaylist() {
 
 // Event listeners
 document.getElementById('spotifyAuthButton').addEventListener('click', authenticateWithSpotify);
-document.getElementById('find-album').addEventListener('click', findAlbumByMood);
 document.getElementById('play-random-album').addEventListener('click', playRandomAlbum);
 document.getElementById('create-playlist-btn').addEventListener('click', createPlaylist);
 

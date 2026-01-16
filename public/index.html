@@ -19,16 +19,42 @@
             <section class="status-message">
                 <p id="connection-status"></p>
             </section>
+            
+            <!-- Enhanced Mood Selection with Cards -->
             <section class="mood-selection" style="display: none;">
-                <label for="mood">How are you feeling today?</label>
-                <select id="mood">
-                    <option value="happy">Happy</option>
-                    <option value="sad">Sad</option>
-                    <option value="energetic">Energetic</option>
-                    <option value="chill">Chill</option>
-                </select>
-                <button id="find-album">Find Album</button>
+                <h2 class="mood-title">How are you feeling today?</h2>
+                <p class="mood-subtitle">Select a mood to discover albums that match your vibe</p>
+                
+                <div class="mood-cards">
+                    <div class="mood-card" data-mood="happy">
+                        <div class="mood-icon">😊</div>
+                        <h3>Happy</h3>
+                        <p>Upbeat & positive vibes</p>
+                    </div>
+                    <div class="mood-card" data-mood="sad">
+                        <div class="mood-icon">😢</div>
+                        <h3>Sad</h3>
+                        <p>Melancholic & introspective</p>
+                    </div>
+                    <div class="mood-card" data-mood="energetic">
+                        <div class="mood-icon">⚡</div>
+                        <h3>Energetic</h3>
+                        <p>High-energy & danceable</p>
+                    </div>
+                    <div class="mood-card" data-mood="chill">
+                        <div class="mood-icon">😌</div>
+                        <h3>Chill</h3>
+                        <p>Relaxed & low-tempo</p>
+                    </div>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="loading-state" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p class="loading-text">Analyzing your albums... 🎵</p>
+                </div>
             </section>
+            
             <section class="random-album" style="display: none;">
                 <p id="random-album-question">Do you want to play a random album from your library?</p>
                 <button id="play-random-album">Play Random Album</button>
