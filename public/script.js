@@ -26,6 +26,7 @@ function handleAuthenticationSuccess(token) {
     document.getElementById('connection-status').style.color = '#1DB954';
     document.querySelector('.mood-selection').style.display = 'block';
     document.querySelector('.random-album').style.display = 'block';
+    document.querySelector('.playlist-creation').style.display = 'block'; // Show playlist creation
     document.querySelector('.authentication').style.display = 'none';
     
     // Load user's albums
@@ -46,76 +47,70 @@ async function loadUserAlbums() {
 
 async function findAlbumByMood() {
     const mood = document.getElementById('mood').value;
+    const statusElement = document.getElementById('connection-status');
+    const albumList = document.getElementById('album-list');
     
-    if (userAlbums.length === 0) {
-        alert('No albums found in your library. Please add some albums to your Spotify library first.');
-        return;
-    }
-
-    // Get audio features for tracks in albums
-    const albumsWithFeatures = [];
+    // Show loading state
+    statusElement.textContent = `Analyzing your albums for ${mood} mood... 🎵`;
+    statusElement.style.color = '#1DB954';
+    albumList.innerHTML = '<li style="text-align: center; color: #1DB954;">Loading recommendations...</li>';
     
-    for (const albumItem of userAlbums) {
-        const album = albumItem.album;
+    try {
+        const response = await fetch(`/api/recommend-albums?access_token=${accessToken}&mood=${mood}`);
+        const data = await response.json();
         
-        // Get track IDs from the album
-        const trackIds = album.tracks?.items?.map(track => track.id).filter(id => id).slice(0, 10) || [];
-        
-        if (trackIds.length === 0) continue;
-
-        try {
-            const response = await fetch(`/api/audio-features?access_token=${accessToken}&track_ids=${trackIds.join(',')}`);
-            const data = await response.json();
-            
-            if (data.audio_features) {
-                // Calculate average features for the album
-                const features = data.audio_features.filter(f => f !== null);
-                if (features.length > 0) {
-                    const avgValence = features.reduce((sum, f) => sum + f.valence, 0) / features.length;
-                    const avgEnergy = features.reduce((sum, f) => sum + f.energy, 0) / features.length;
-                    
-                    // Check if album matches mood criteria
-                    const criteria = moodCriteria[mood];
-                    if (avgValence >= criteria.valence[0] && avgValence <= criteria.valence[1] &&
-                        avgEnergy >= criteria.energy[0] && avgEnergy <= criteria.energy[1]) {
-                        albumsWithFeatures.push({ album, avgValence, avgEnergy });
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching audio features:', error);
+        if (data.error) {
+            statusElement.textContent = `Error: ${data.error}`;
+            statusElement.style.color = '#ff6b6b';
+            albumList.innerHTML = '';
+            return;
         }
-    }
 
-    if (albumsWithFeatures.length === 0) {
-        displayAlbums([]);
-        document.getElementById('connection-status').textContent = `No albums found matching your ${mood} mood. Try a different mood!`;
-        return;
-    }
+        if (data.albums.length === 0) {
+            statusElement.textContent = `No albums found matching your ${mood} mood. Try a different mood!`;
+            statusElement.style.color = '#ffa500';
+            albumList.innerHTML = '<li style="text-align: center;">No matching albums found. Try another mood!</li>';
+            return;
+        }
 
-    // Display matching albums
-    displayAlbums(albumsWithFeatures.map(item => item.album));
-    document.getElementById('connection-status').textContent = `Found ${albumsWithFeatures.length} album(s) matching your ${mood} mood!`;
+        // Display results
+        statusElement.textContent = `Found ${data.matchingAlbums} album(s) matching your ${mood} mood! 🎉`;
+        statusElement.style.color = '#1DB954';
+        displayMoodAlbums(data.albums);
+        
+    } catch (error) {
+        console.error('Error finding albums by mood:', error);
+        statusElement.textContent = 'Failed to analyze albums. Please try again.';
+        statusElement.style.color = '#ff6b6b';
+        albumList.innerHTML = '';
+    }
 }
 
-function displayAlbums(albums) {
+function displayMoodAlbums(albums) {
     const albumList = document.getElementById('album-list');
     albumList.innerHTML = '';
 
     if (albums.length === 0) {
-        albumList.innerHTML = '<li>No albums found. Try a different mood!</li>';
+        albumList.innerHTML = '<li style="text-align: center;">No albums found. Try a different mood!</li>';
         return;
     }
 
-    albums.forEach(album => {
+    albums.forEach((item, index) => {
+        const album = item.album;
+        const moodScore = (item.moodScore * 100).toFixed(0);
+        
         const li = document.createElement('li');
         li.innerHTML = `
             <div class="album-item">
                 ${album.images && album.images[0] ? `<img src="${album.images[0].url}" alt="${album.name}" class="album-cover">` : ''}
                 <div class="album-info">
-                    <strong>${album.name}</strong><br>
-                    <span>${album.artists.map(artist => artist.name).join(', ')}</span><br>
-                    <a href="${album.external_urls.spotify}" target="_blank" class="play-button">Open in Spotify</a>
+                    <strong>${album.name}</strong>
+                    <span class="mood-score">Match: ${moodScore}%</span><br>
+                    <span class="artist-name">${album.artists.join(', ')}</span><br>
+                    <span class="album-details">${album.total_tracks} tracks • ${album.release_date.substring(0, 4)}</span><br>
+                    <div class="album-actions">
+                        <a href="${album.external_urls.spotify}" target="_blank" class="play-button">Open in Spotify</a>
+                    </div>
                 </div>
             </div>
         `;
@@ -136,10 +131,73 @@ async function playRandomAlbum() {
     document.getElementById('connection-status').textContent = 'Here\'s a random album from your library!';
 }
 
+// Create a playlist from liked songs filtered by mood
+async function createPlaylist() {
+    const mood = document.getElementById('playlist-mood').value;
+    const playlistName = document.getElementById('playlist-name').value.trim();
+    const trackCount = parseInt(document.getElementById('track-count').value);
+    const resultDiv = document.getElementById('playlist-result');
+    const createBtn = document.getElementById('create-playlist-btn');
+    
+    // Validation
+    if (!playlistName) {
+        resultDiv.innerHTML = '<p class="error">Please enter a playlist name!</p>';
+        return;
+    }
+    
+    // Show loading state
+    createBtn.disabled = true;
+    createBtn.textContent = 'Creating Playlist... ⏳';
+    resultDiv.innerHTML = '<p class="loading">Analyzing your liked songs and creating playlist...</p>';
+    
+    try {
+        const response = await fetch('/api/create-playlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                accessToken: accessToken,
+                mood: mood,
+                playlistName: playlistName,
+                trackCount: trackCount
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div class="success-message">
+                    <h3>✅ Playlist Created Successfully!</h3>
+                    <p><strong>${data.playlist.name}</strong></p>
+                    <p>${data.playlist.tracks_added} ${data.playlist.mood} songs added</p>
+                    <a href="${data.playlist.external_urls.spotify}" target="_blank" class="open-playlist-btn">
+                        Open in Spotify 🎵
+                    </a>
+                </div>
+            `;
+            
+            // Clear form
+            document.getElementById('playlist-name').value = '';
+        } else {
+            resultDiv.innerHTML = `<p class="error">${data.message || 'Failed to create playlist'}</p>`;
+        }
+        
+    } catch (error) {
+        console.error('Error creating playlist:', error);
+        resultDiv.innerHTML = '<p class="error">Failed to create playlist. Please try again.</p>';
+    } finally {
+        createBtn.disabled = false;
+        createBtn.textContent = 'Create Playlist 🎵';
+    }
+}
+
 // Event listeners
 document.getElementById('spotifyAuthButton').addEventListener('click', authenticateWithSpotify);
 document.getElementById('find-album').addEventListener('click', findAlbumByMood);
 document.getElementById('play-random-album').addEventListener('click', playRandomAlbum);
+document.getElementById('create-playlist-btn').addEventListener('click', createPlaylist);
 
 // Check for access token on page load
 window.onload = () => {

@@ -1,8 +1,10 @@
 {
-  "name": "spotify-mood-player",
+  "name": "moodify",
   "version": "1.0.0",
-  "description": "",
+  "description": "Moodify - A mood-based album recommender and playlist generator using Spotify API. Helps users easily select albums and create playlists based on their current emotional state.",
   "main": "index.js",
+  "author": "Erick",
+  "keywords": ["spotify", "mood", "music", "recommendation", "playlist", "api"],
   "dependencies": {
     "accepts": "^1.3.8",
     "ajv": "^6.12.6",

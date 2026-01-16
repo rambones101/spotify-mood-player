@@ -30,6 +30,14 @@ header h1 {
     font-size: 2.5em;
 }
 
+header .tagline {
+    color: #1DB954;
+    font-size: 1.1em;
+    margin-top: 8px;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
 main {
     padding: 40px 20px;
     text-align: center;
@@ -197,9 +205,39 @@ main {
     margin-bottom: 5px;
 }
 
+.mood-score {
+    display: inline-block;
+    background: linear-gradient(135deg, #1DB954, #1ed760);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.artist-name {
+    color: #666;
+    font-size: 15px;
+    display: block;
+    margin: 5px 0;
+}
+
+.album-details {
+    color: #999;
+    font-size: 13px;
+    display: block;
+    margin: 3px 0;
+}
+
 .album-info span {
     color: #666;
     font-size: 14px;
+}
+
+.album-actions {
+    margin-top: 10px;
 }
 
 .play-button {
@@ -218,4 +256,158 @@ main {
 .play-button:hover {
     background-color: #1ed760;
     transform: scale(1.05);
+}
+/* Playlist Creation Section */
+.playlist-creation {
+    margin: 40px 0;
+    padding: 35px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.playlist-creation h2 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 28px;
+}
+
+.playlist-description {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 25px;
+}
+
+.playlist-form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+.form-group select,
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    background: white;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group select:focus,
+.form-group input[type="text"]:focus {
+    outline: none;
+    border-color: #1DB954;
+}
+
+.form-group select {
+    cursor: pointer;
+}
+
+#create-playlist-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #1DB954, #1ed760);
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+#create-playlist-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
+}
+
+#create-playlist-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#playlist-result {
+    margin-top: 25px;
+    min-height: 50px;
+}
+
+.success-message {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border: 2px solid #1DB954;
+    border-radius: 15px;
+    padding: 25px;
+    animation: slideIn 0.5s ease;
+}
+
+.success-message h3 {
+    color: #155724;
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+.success-message p {
+    color: #155724;
+    margin: 8px 0;
+    font-size: 16px;
+}
+
+.open-playlist-btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 12px 30px;
+    background-color: #1DB954;
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.open-playlist-btn:hover {
+    background-color: #1ed760;
+    transform: scale(1.05);
+}
+
+.error {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 2px solid #dc3545;
+    border-radius: 10px;
+    padding: 15px;
+    font-weight: 500;
+}
+
+.loading {
+    color: #1DB954;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

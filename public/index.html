@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Mood-Based Album Recommender</title>
+    <title>Moodify - Your Mood-Based Music Companion</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Spotify Album Recommender</h1>
+            <h1>🎵 Moodify</h1>
+            <p class="tagline">Discover albums that match your mood</p>
         </header>
         <main>
             <section class="authentication">
@@ -32,6 +33,43 @@
                 <p id="random-album-question">Do you want to play a random album from your library?</p>
                 <button id="play-random-album">Play Random Album</button>
             </section>
+            
+            <!-- Playlist Creation Section -->
+            <section class="playlist-creation" style="display: none;">
+                <h2>🎶 Create a Mood Playlist</h2>
+                <p class="playlist-description">Generate a custom playlist from your liked songs</p>
+                
+                <div class="playlist-form">
+                    <div class="form-group">
+                        <label for="playlist-mood">Select Mood:</label>
+                        <select id="playlist-mood">
+                            <option value="happy">😊 Happy - Upbeat & positive vibes</option>
+                            <option value="sad">😢 Sad - Melancholic & introspective</option>
+                            <option value="energetic">⚡ Energetic - High-energy & danceable</option>
+                            <option value="chill">😌 Chill - Relaxed & low-tempo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="playlist-name">Playlist Name:</label>
+                        <input type="text" id="playlist-name" placeholder="My Awesome Playlist" maxlength="100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="track-count">Number of Songs:</label>
+                        <select id="track-count">
+                            <option value="10">10 songs</option>
+                            <option value="25" selected>25 songs</option>
+                            <option value="50">50 songs</option>
+                        </select>
+                    </div>
+                    
+                    <button id="create-playlist-btn">Create Playlist 🎵</button>
+                </div>
+                
+                <div id="playlist-result"></div>
+            </section>
+            
             <section class="album-display">
                 <ul id="album-list">
                 </ul>
