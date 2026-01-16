@@ -12,6 +12,47 @@
             <h1>🎵 Moodify</h1>
             <p class="tagline">Discover albums that match your mood</p>
         </header>
+        
+        <!-- User Guide Section -->
+        <section class="user-guide">
+            <button id="guideToggle" class="guide-toggle">📖 How to Use Moodify</button>
+            <div id="guideContent" class="guide-content" style="display: none;">
+                <div class="guide-steps">
+                    <div class="guide-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Connect Your Spotify</h3>
+                            <p>Click "Connect with Spotify" and authorize Moodify to access your music library.</p>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Select Your Mood</h3>
+                            <p>Choose from Happy, Sad, Energetic, or Chill moods. We'll analyze your albums to find the perfect match!</p>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Create Mood Playlists</h3>
+                            <p>Generate custom playlists from your liked songs filtered by mood. Perfect for any occasion!</p>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Enjoy Your Music</h3>
+                            <p>Click on any album to open it in Spotify and start listening!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="guide-tip">
+                    <strong>💡 Pro Tip:</strong> Make sure you have albums saved in your Spotify library for the best recommendations!
+                </div>
+            </div>
+        </section>
+        
         <main>
             <section class="authentication">
                 <button id="spotifyAuthButton">Connect with Spotify</button>
@@ -102,6 +143,20 @@
                 </ul>
             </section>
         </main>
+        
+        <footer class="app-footer">
+            <div class="footer-content">
+                <p class="footer-text">Made with ❤️ for music lovers</p>
+                <div class="footer-links">
+                    <a href="https://github.com/yourusername/moodify" target="_blank" rel="noopener">GitHub</a>
+                    <span class="separator">•</span>
+                    <a href="https://developer.spotify.com/" target="_blank" rel="noopener">Spotify API</a>
+                    <span class="separator">•</span>
+                    <span class="version">v1.0.0</span>
+                </div>
+                <p class="footer-disclaimer">Moodify is not affiliated with Spotify AB</p>
+            </div>
+        </footer>
     </div>
     <script src="script.js"></script>
 </body>

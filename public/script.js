@@ -4,6 +4,20 @@ let tokenExpiryTime = null;
 let userAlbums = [];
 let selectedMood = null;
 
+// User Guide Toggle
+document.addEventListener('DOMContentLoaded', () => {
+    const guideToggle = document.getElementById('guideToggle');
+    const guideContent = document.getElementById('guideContent');
+    
+    if (guideToggle) {
+        guideToggle.addEventListener('click', () => {
+            const isVisible = guideContent.style.display === 'block';
+            guideContent.style.display = isVisible ? 'none' : 'block';
+            guideToggle.textContent = isVisible ? '📖 How to Use Moodify' : '📖 Hide Guide';
+        });
+    }
+});
+
 // Mood mappings for audio features
 const moodCriteria = {
     happy: { valence: [0.6, 1.0], energy: [0.5, 1.0] },

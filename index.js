@@ -640,8 +640,9 @@ app.post('/api/create-playlist', async (req, res) => {
 });
 
 // Start the server
-const port = 5500;
+// Use environment PORT for deployment platforms (Heroku, Railway, etc.) or default to 5500
+const port = process.env.PORT || 5500;
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
-    console.log(`Open http://localhost:${port} in your browser`);
+    console.log(`Open http://127.0.0.1:${port} in your browser`);
 });
