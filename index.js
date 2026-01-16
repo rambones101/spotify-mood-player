@@ -183,13 +183,47 @@ app.get('/callback', (req, res) => {
             // Extract access and refresh tokens
             const accessToken = body.access_token;
             const refreshToken = body.refresh_token;
+            const expiresIn = body.expires_in; // Token expires in 3600 seconds (1 hour)
 
-            // Redirect to the home page with tokens
-            res.redirect(`/?access_token=${accessToken}&refresh_token=${refreshToken}`);
+            // Redirect to the home page with tokens and expiry time
+            res.redirect(`/?access_token=${accessToken}&refresh_token=${refreshToken}&expires_in=${expiresIn}`);
         } else {
             // Log and handle errors
-            console.error('Error getting tokens:', error);
+            console.error('Error getting tokens:', error, body);
             res.redirect('/#error=token_retrieval_failed');
+        }
+    });
+});
+
+// Route to refresh access token
+app.post('/api/refresh-token', (req, res) => {
+    const refreshToken = req.body.refresh_token;
+    
+    if (!refreshToken) {
+        return res.status(400).json({ error: 'No refresh token provided' });
+    }
+
+    const authOptions = {
+        url: 'https://accounts.spotify.com/api/token',
+        form: {
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken
+        },
+        headers: {
+            'Authorization': 'Basic ' + (Buffer.from(clientId + ':' + clientSecret).toString('base64'))
+        },
+        json: true
+    };
+
+    request.post(authOptions, (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+            res.json({
+                access_token: body.access_token,
+                expires_in: body.expires_in
+            });
+        } else {
+            console.error('Error refreshing token:', error);
+            res.status(response?.statusCode || 500).json({ error: 'Failed to refresh token' });
         }
     });
 });
@@ -213,9 +247,24 @@ app.get('/api/albums', (req, res) => {
     request.get(options, (error, response, body) => {
         if (!error && response.statusCode === 200) {
             res.json(body);
+        } else if (response?.statusCode === 429) {
+            // Rate limit exceeded
+            const retryAfter = response.headers['retry-after'] || 60;
+            console.error('Rate limit exceeded. Retry after:', retryAfter);
+            res.status(429).json({ 
+                error: 'Rate limit exceeded',
+                retryAfter: retryAfter,
+                message: `Too many requests. Please wait ${retryAfter} seconds.`
+            });
+        } else if (response?.statusCode === 401) {
+            // Unauthorized - token expired
+            res.status(401).json({ 
+                error: 'Token expired',
+                message: 'Your session has expired. Please reconnect to Spotify.'
+            });
         } else {
             console.error('Error fetching albums:', error);
-            res.status(response.statusCode).json({ error: 'Failed to fetch albums' });
+            res.status(response?.statusCode || 500).json({ error: 'Failed to fetch albums' });
         }
     });
 });
@@ -341,7 +390,7 @@ app.get('/api/recommend-albums', async (req, res) => {
             Promise.all(albumPromises).then(analyzedAlbums => {
                 // Filter albums with a minimum mood score and sort
                 const filteredAlbums = analyzedAlbums
-                    .filter(item => item.moodScore > 0.3) // Only include reasonably good matches
+                    .filter(item => item.moodScore > 0.25) // Lowered threshold for better results
                     .sort((a, b) => b.moodScore - a.moodScore); // Sort by best match first
 
                 res.json({

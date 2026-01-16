@@ -67,6 +67,25 @@ main {
     box-shadow: 0 6px 20px rgba(29, 185, 84, 0.6);
 }
 
+#reconnectButton {
+    background-color: #f39c12;
+    color: white;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+}
+
+#reconnectButton:hover {
+    background-color: #e67e22;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(243, 156, 18, 0.6);
+}
+
 .status-message {
     margin: 20px 0;
     min-height: 30px;
@@ -482,6 +501,48 @@ main {
     header h1 {
         font-size: 2em;
     }
+}
+
+/* Empty State */
+.empty-state {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 60px 40px;
+    border-radius: 20px;
+    text-align: center;
+    list-style: none;
+}
+
+.empty-state-content {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.empty-icon {
+    font-size: 72px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.empty-state p {
+    font-size: 16px;
+    color: #666;
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+.empty-tip {
+    margin-top: 20px;
+    padding: 15px;
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    border-radius: 10px;
+    font-weight: 500;
+    color: #856404;
 }
 
 /* Playlist Creation Section */
